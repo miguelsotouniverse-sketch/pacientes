@@ -123,6 +123,56 @@
   .version { margin-top: auto; padding-top: 32px; font-size: 13px; color: #8A847E; }
 
   .cargando { flex: 1; display: grid; place-items: center; }
+
+  /* Inicio: renglones tocables */
+  .lista li.activo { cursor: pointer; }
+  .lista li.activo .estado { color: var(--tinta); }
+  .lista li.activo:focus-visible { outline: 2px solid var(--taupe); outline-offset: 4px; }
+
+  /* Pantallas de detalle */
+  .titulo-detalle { padding: 36px 0 6px; }
+  .vacio { margin-top: 24px; color: #57524D; max-width: 34ch; }
+  .cifra-grande { font: 500 44px/1.05 var(--serif); margin-top: 22px; }
+  .proc { font: 500 26px/1.2 var(--serif); margin-top: 18px; }
+  .meta { font-size: 14px; color: #6E6964; margin-top: 4px; }
+  .renglones { margin-top: 22px; border-top: 1px solid var(--linea); }
+  .renglones div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
+  .renglones dt, .renglones dd { margin: 0; }
+  .renglones dd { font-weight: 500; text-align: right; }
+  .seccion-t { font: 500 20px/1.2 var(--serif); margin-top: 32px; color: #3B3835; }
+  .item { padding: 18px 0; border-bottom: 1px solid var(--linea); }
+  .item:first-of-type { border-top: 1px solid var(--linea); }
+  .item h3 { font: 500 22px/1.2 var(--serif); }
+  .item p { font-size: 15px; color: #57524D; margin-top: 3px; }
+  .fecha-cita { font-size: 15px; color: var(--tinta); font-weight: 500; }
+  .item button.enlace { margin-top: 6px; }
+  details.pasadas { margin-top: 28px; }
+  details.pasadas summary { cursor: pointer; color: var(--taupe-osc); font-size: 15px; }
+
+  /* Receta */
+  .med { padding: 18px 0; border-bottom: 1px solid var(--linea); }
+  .med:first-of-type { border-top: 1px solid var(--linea); margin-top: 20px; }
+  .med h3 { font: 500 22px/1.2 var(--serif); }
+  .med p { font-size: 15px; color: #57524D; margin-top: 3px; }
+  .etiqueta { display: inline-block; margin-top: 8px; font-size: 13px; padding: 3px 10px; border-radius: 12px; background: var(--papel); border: 1px solid var(--linea); color: #57524D; }
+  .etiqueta.si { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
+  .caja { margin-top: 26px; padding: 20px; background: var(--papel); border: 1px solid var(--linea); }
+  .caja h3 { font: 500 22px/1.2 var(--serif); }
+  .caja p { font-size: 15px; color: #57524D; margin-top: 6px; }
+  .caja input[type=datetime-local] { width: 100%; margin-top: 14px; padding: 12px; border: 1px solid var(--linea); background: #fff; font-size: 17px; border-radius: 2px; }
+  .toma { display: grid; grid-template-columns: auto 1fr; gap: 2px 16px; padding: 16px 0; border-bottom: 1px solid var(--linea); align-items: baseline; }
+  .toma .h { font: 500 24px/1 var(--serif); }
+  .toma .n { font-weight: 500; }
+  .toma .acc { grid-column: 2; display: flex; gap: 10px; margin-top: 10px; }
+  .toma .acc button { flex: 1; padding: 11px; border: 1px solid var(--tinta); background: transparent; border-radius: 2px; cursor: pointer; font-size: 15px; }
+  .toma .acc button.si { background: var(--tinta); color: var(--crema); }
+  .toma .ok { grid-column: 2; font-size: 14px; color: #57524D; }
+  .toma.critico .n::after { content: ' · importante'; color: var(--error); font-weight: 400; font-size: 14px; }
+  .dia-tomas { margin-top: 18px; font-size: 13px; color: var(--taupe-osc); letter-spacing: .02em; }
+  .aviso-cambio { margin-top: 20px; padding: 14px 16px; border-left: 3px solid var(--error); background: var(--papel); font-size: 15px; }
+  .alarma { margin-top: 32px; font-size: 15px; color: #3B3835; }
+  .alarma a { color: var(--tinta); font-weight: 500; }
+  .cargando-datos { margin-top: 24px; color: #6E6964; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -203,6 +253,35 @@
     </div>
   </section>
 
+  <!-- 6. Mi cotización -->
+  <section class="pantalla detalle" data-p="cotizacion" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <h2 class="titulo-detalle">Mi cotización</h2>
+    <div id="v-cotizacion"></div>
+  </section>
+
+  <!-- 7. Mis citas -->
+  <section class="pantalla detalle" data-p="citas" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <h2 class="titulo-detalle">Mis citas</h2>
+    <div id="v-citas"></div>
+  </section>
+
+  <!-- 8. Mis indicaciones -->
+  <section class="pantalla detalle" data-p="indicaciones" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <h2 class="titulo-detalle">Mis indicaciones</h2>
+    <div id="v-indicaciones"></div>
+  </section>
+
+  <!-- 9. Mi receta -->
+  <section class="pantalla detalle" data-p="receta" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <h2 class="titulo-detalle">Mi receta</h2>
+    <div id="v-receta"></div>
+    <p class="alarma">Si presenta un signo de alarma, llámenos de inmediato al <a id="l-tel-2"></a>. Estamos disponibles a cualquier hora.</p>
+  </section>
+
   <!-- 5. Ajustes -->
   <section class="pantalla ajustes" data-p="ajustes" hidden>
     <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
@@ -269,10 +348,11 @@
   $('#l-wa').href = wa;
   $('#l-tel').href = 'tel:' + C.URGENCIAS;
   $('#t-urg').textContent = C.URGENCIAS_TEXTO;
+  $('#l-tel-2').href = 'tel:' + C.URGENCIAS; $('#l-tel-2').textContent = C.URGENCIAS_TEXTO;
   $('#t-aviso').innerHTML = C.AVISO_HTML;
   $('#t-aviso-2').innerHTML = C.AVISO_HTML;
   $('#t-version').textContent = 'Aviso de privacidad, versión ' + C.AVISO_VERSION;
-  document.querySelectorAll('[data-ir]').forEach(b => b.addEventListener('click', () => mostrar(b.dataset.ir)));
+  document.querySelectorAll('[data-ir]').forEach(b => b.addEventListener('click', () => { mostrar(b.dataset.ir); try { history.replaceState(null, '', location.pathname); } catch {} }));
 
   // ── 1. Celular ──
   $('#tel').addEventListener('input', e => { e.target.value = formato(solo10(e.target.value)); $('#e-celular').textContent = ''; });
@@ -334,28 +414,244 @@
   });
 
   // ── 4. Inicio ──
+  let datos = null;           // respuesta de /api/inicio
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pesos = n => '$' + Number(n || 0).toLocaleString('es-MX', { maximumFractionDigits: 0 });
+  const TZ = { timeZone: 'America/Mexico_City' };
+  const fechaLarga = iso => new Date(iso).toLocaleDateString('es-MX', { ...TZ, weekday: 'long', day: 'numeric', month: 'long' });
+  const fechaCorta = iso => new Date(iso.length === 10 ? iso + 'T12:00:00' : iso).toLocaleDateString('es-MX', { ...TZ, day: 'numeric', month: 'long', year: 'numeric' });
+  const hora = iso => new Date(iso).toLocaleTimeString('es-MX', { ...TZ, hour: 'numeric', minute: '2-digit' });
+
   const SECCIONES = [
     ['cotizacion', 'Mi cotización', 'La cotización vigente que recibió en su valoración, con lo que lleva pagado.'],
     ['indicaciones', 'Mis indicaciones', 'Lo que debe hacer antes y después de su cirugía, en cuanto quede programada.'],
-    ['receta', 'Mi receta', 'Sus medicamentos con un recordatorio para cada toma, después de su cirugía.'],
+    ['receta', 'Mi receta', 'Sus medicamentos, con un recordatorio para cada toma.'],
     ['citas', 'Mis citas', 'Sus próximas citas y las que ya tuvo.'],
   ];
+  function resumenSeccion(clave) {
+    if (!datos) return { activa: false, estado: 'Cargando…' };
+    if (!datos.disponible) return { activa: false, estado: 'Aún no disponible' };
+    if (clave === 'cotizacion') return datos.cotizacion
+      ? { activa: true, estado: datos.cotizacion.saldo > 0 ? 'Saldo ' + pesos(datos.cotizacion.saldo) : 'Ver' }
+      : { activa: false, estado: 'Sin cotización vigente' };
+    if (clave === 'indicaciones') return datos.indicaciones.length
+      ? { activa: true, estado: datos.indicaciones.length === 1 ? '1 documento' : datos.indicaciones.length + ' documentos' }
+      : { activa: false, estado: 'Aún no hay' };
+    if (clave === 'receta') {
+      if (!datos.receta) return { activa: false, estado: 'Aún no hay' };
+      const pend = (datos.recordatorios.tomas || []).filter(t => t.estado === 'pendiente' && new Date(t.programada) <= new Date(Date.now() + 15 * 60e3)).length;
+      return { activa: true, estado: pend ? pend + (pend === 1 ? ' toma por confirmar' : ' tomas por confirmar') : (datos.recordatorios.activos.length ? 'Recordatorios activos' : 'Ver') };
+    }
+    if (clave === 'citas') {
+      const p = datos.citas.proximas[0];
+      return (p || datos.citas.pasadas.length)
+        ? { activa: true, estado: p ? new Date(p.inicio).toLocaleDateString('es-MX', { ...TZ, day: 'numeric', month: 'short' }) : 'Ver' }
+        : { activa: false, estado: 'Sin citas' };
+    }
+  }
   function pintarInicio() {
     $('#t-saludo').textContent = yo.nombre ? `Hola, ${yo.nombre}.` : 'Hola.';
     const ul = $('#lista'); ul.innerHTML = '';
     for (const [clave, titulo, texto] of SECCIONES) {
-      const activa = !!(yo.secciones && yo.secciones[clave]);
+      const r = resumenSeccion(clave);
       const li = document.createElement('li');
-      if (!activa) li.className = 'inactivo';
+      li.className = r.activa ? 'activo' : 'inactivo';
       li.innerHTML = `<h3></h3><span class="estado"></span><p></p>`;
       li.querySelector('h3').textContent = titulo;
       li.querySelector('p').textContent = texto;
-      li.querySelector('.estado').textContent = activa ? 'Ver' : 'Aún no disponible';
+      li.querySelector('.estado').textContent = r.estado;
+      if (r.activa) {
+        li.tabIndex = 0; li.setAttribute('role', 'button');
+        const ir = () => abrir(clave);
+        li.addEventListener('click', ir);
+        li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ir(); } });
+      }
       ul.appendChild(li);
     }
     $('#s-com').checked = !!yo.comercial;
     pintarInstalar();
   }
+
+  async function cargarDatos(fresco) {
+    const d = await api('/api/inicio' + (fresco ? '?fresco=1' : ''));
+    datos = d.ok ? d : { disponible: false, error: d.error };
+    pintarInicio();
+    const visible = [...document.querySelectorAll('.pantalla')].find(s => !s.hidden);
+    if (visible && PINTORES[visible.dataset.p]) PINTORES[visible.dataset.p]();
+  }
+
+  function abrir(clave) {
+    if (PINTORES[clave]) PINTORES[clave]();
+    mostrar(clave);
+    try { history.replaceState(null, '', '#' + clave); } catch {}
+  }
+
+  async function abrirDocumento(id, boton) {
+    const texto = boton.textContent; ocupado(boton, true, 'Abriendo…');
+    const ventana = window.open('', '_blank');           // se abre antes del await para que el navegador no la bloquee
+    const d = await api('/api/archivo/' + encodeURIComponent(id) + '/enlace');
+    ocupado(boton, false, texto);
+    if (!d.ok) { if (ventana) ventana.close(); alertaSuave(boton, d.error); return; }
+    if (ventana) ventana.location = C.API + d.url; else location.href = C.API + d.url;
+  }
+  function alertaSuave(cerca, msg) {
+    let p = cerca.parentElement.querySelector('.error');
+    if (!p) { p = document.createElement('p'); p.className = 'error'; cerca.parentElement.appendChild(p); }
+    p.textContent = msg;
+  }
+
+  // ── 6-9. Detalle ──
+  const PINTORES = {
+    cotizacion() {
+      const c = datos && datos.cotizacion, v = $('#v-cotizacion');
+      if (!c) { v.innerHTML = '<p class="vacio">No encontramos una cotización vigente a su nombre. Si acaba de tener su valoración, puede tardar unos minutos en aparecer.</p>'; return; }
+      v.innerHTML = `
+        <p class="proc">${esc(c.procedimiento)}</p>
+        <p class="meta">Cotización ${esc(c.id)} · ${esc(fechaCorta(c.fecha))}</p>
+        <p class="cifra-grande">${pesos(c.monto)}</p>
+        <dl class="renglones">
+          <div><dt>Pagado</dt><dd>${pesos(c.pagado)}</dd></div>
+          <div><dt>Saldo</dt><dd>${pesos(c.saldo)}</dd></div>
+        </dl>
+        ${c.pdf ? '<button class="boton claro" type="button" id="b-pdf-cot">Ver cotización completa</button>' : ''}
+        <p class="meta" style="margin-top:18px">Si algún monto no coincide con lo que usted pagó, escríbanos por WhatsApp y lo revisamos.</p>`;
+      const b = $('#b-pdf-cot'); if (b) b.onclick = () => abrirDocumento('cotizacion', b);
+    },
+
+    citas() {
+      const v = $('#v-citas'), c = datos && datos.citas;
+      if (!c || (!c.proximas.length && !c.pasadas.length)) { v.innerHTML = '<p class="vacio">No tiene citas registradas por ahora.</p>'; return; }
+      const fila = x => `<div class="item">
+          <p class="fecha-cita">${esc(fechaLarga(x.inicio))}, ${esc(hora(x.inicio))}</p>
+          <h3>${esc(x.tipo)}</h3>
+          ${x.detalle ? `<p>${esc(x.detalle)}</p>` : ''}
+          ${x.sede || x.modalidad ? `<p>${esc([x.sede, x.modalidad].filter(Boolean).join(' · '))}</p>` : ''}
+          ${x.ingreso ? `<p>Hora de llegada: ${esc(x.ingreso)}</p>` : ''}
+        </div>`;
+      v.innerHTML = (c.proximas.length ? '<p class="seccion-t">Próximas</p>' + c.proximas.map(fila).join('') : '<p class="vacio">No tiene citas próximas.</p>')
+        + (c.pasadas.length ? `<details class="pasadas"><summary>Citas anteriores (${c.pasadas.length})</summary>${c.pasadas.map(fila).join('')}</details>` : '')
+        + '<p class="meta" style="margin-top:22px">Para cambiar una cita, escríbanos por WhatsApp.</p>';
+    },
+
+    indicaciones() {
+      const v = $('#v-indicaciones'), l = (datos && datos.indicaciones) || [];
+      if (!l.length) { v.innerHTML = '<p class="vacio">Sus indicaciones aparecerán aquí en cuanto quede programada su cirugía.</p>'; return; }
+      const cx = datos.cirugia;
+      v.innerHTML = (cx ? `<p class="meta" style="margin-top:10px">${esc(cx.procedimiento)}${cx.momento === 'PRE' ? ' · cirugía el ' + esc(fechaLarga(cx.fecha)) : ''}</p>` : '')
+        + l.map(i => `<div class="item"><h3>${esc(i.titulo)}</h3>
+            <p>${i.momento === 'PRE' ? 'Antes de su cirugía' : i.momento === 'POST' ? 'Después de su cirugía' : 'Antes y después de su cirugía'}</p>
+            <button class="enlace" type="button" data-doc="${esc(i.id)}">Abrir documento</button></div>`).join('');
+      v.querySelectorAll('[data-doc]').forEach(b => b.onclick = () => abrirDocumento(b.dataset.doc, b));
+    },
+
+    receta() {
+      const v = $('#v-receta'), r = datos && datos.receta, rec = (datos && datos.recordatorios) || { activos: [], tomas: [] };
+      if (!r) { v.innerHTML = '<p class="vacio">Su receta aparecerá aquí cuando su médico la registre en su expediente.</p>'; return; }
+      const conAlarma = r.renglones.filter(x => x.alarma);
+      let html = `<p class="meta" style="margin-top:8px">Receta del ${esc(fechaCorta(r.fecha))}</p>`;
+      if (rec.recetaNueva) html += '<div class="aviso-cambio">Su médico registró una receta nueva. Vuelva a programar sus recordatorios para que coincidan con ella.</div>';
+
+      html += r.renglones.map(x => `<div class="med"><h3>${esc(x.medicamento)}</h3><p>${esc(x.indicacion)}</p>
+        <span class="etiqueta ${x.alarma ? 'si' : ''}">${x.alarma ? 'Con recordatorio' : x.a_demanda ? 'Solo si lo necesita' : 'Según indicación de su médico'}</span></div>`).join('');
+
+      const activos = rec.activos.length && !rec.recetaNueva;
+      if (activos) {
+        const ahora = Date.now();
+        const lista = rec.tomas.filter(t => new Date(t.programada).getTime() > ahora - 18 * 3600e3);
+        const diaDe = iso => new Date(iso).toLocaleDateString('en-CA', TZ);
+        const hoyD = diaDe(new Date().toISOString()), mananaD = diaDe(new Date(Date.now() + 864e5).toISOString()), ayerD = diaDe(new Date(Date.now() - 864e5).toISOString());
+        const nombreDia = d => d === hoyD ? 'Hoy' : d === mananaD ? 'Mañana' : d === ayerD ? 'Ayer' : fechaLarga(d + 'T12:00:00');
+        let diaPrevio = '';
+        html += '<p class="seccion-t">Sus tomas</p>' + (lista.length ? lista.map(t => {
+          const d = diaDe(t.programada);
+          const cab = d !== diaPrevio ? `<p class="dia-tomas">${esc(nombreDia(d))}</p>` : '';
+          diaPrevio = d;
+          return cab + filaToma(t);
+        }).join('') : '<p class="vacio">No tiene tomas en las próximas horas.</p>');
+        function filaToma(t) {
+          const pasada = new Date(t.programada).getTime() <= ahora + 15 * 60e3;
+          const acc = t.estado === 'tomada' ? '<span class="ok">Tomada ✓</span>'
+            : t.estado === 'omitida' ? '<span class="ok">La omitió</span>'
+            : pasada ? `<div class="acc"><button class="si" data-toma="${t.id}" data-e="tomada">Ya la tomé</button><button data-toma="${t.id}" data-e="omitida">La omití</button></div>`
+            : '';
+          return `<div class="toma ${t.critico ? 'critico' : ''}"><span class="h">${esc(hora(t.programada))}</span><span class="n">${esc(t.medicamento)}</span>${acc}</div>`;
+        }
+        html += `<div class="caja"><h3>Notificaciones</h3><p id="t-push">Le avisamos en este teléfono a la hora de cada toma.</p>
+          <button class="boton claro" type="button" id="b-push">Activar notificaciones</button>
+          <button class="enlace" type="button" id="b-detener" style="margin-top:12px">Dejar de recordarme</button></div>`;
+      } else if (conAlarma.length) {
+        const sig = new Date(Date.now() + 3600e3); sig.setMinutes(0, 0, 0);
+        const local = new Date(sig.getTime() - sig.getTimezoneOffset() * 60e3).toISOString().slice(0, 16);
+        html += `<div class="caja"><h3>Recordatorios de sus tomas</h3>
+          <p>Díganos a qué hora tomará (o tomó) la primera dosis. Calculamos las demás según su receta y le avisamos en cada una.</p>
+          <input type="datetime-local" id="i-primera" value="${local}" aria-label="Hora de la primera toma">
+          <p class="error" id="e-rec"></p>
+          <button class="boton" type="button" id="b-programar">Programar recordatorios</button></div>`;
+      }
+      v.innerHTML = html;
+
+      v.querySelectorAll('[data-toma]').forEach(b => b.onclick = async () => {
+        b.disabled = true;
+        const d = await api('/api/tomas/' + b.dataset.toma, { estado: b.dataset.e });
+        if (d.ok) { datos.recordatorios = { ...datos.recordatorios, ...d.recordatorios }; PINTORES.receta(); pintarInicio(); }
+        else b.disabled = false;
+      });
+      const bp = $('#b-programar');
+      if (bp) bp.onclick = async () => {
+        const val = $('#i-primera').value;
+        if (!val) { $('#e-rec').textContent = 'Elija fecha y hora.'; return; }
+        ocupado(bp, true, 'Programando…');
+        const d = await api('/api/recordatorios', { primera: new Date(val).toISOString() });
+        ocupado(bp, false, 'Programar recordatorios');
+        if (!d.ok) { $('#e-rec').textContent = d.error; return; }
+        datos.recordatorios = { ...d.recordatorios, recetaNueva: false };
+        PINTORES.receta(); pintarInicio();
+        activarPush(true);
+      };
+      const bpush = $('#b-push'); if (bpush) { bpush.onclick = () => activarPush(false); pintarPush(); }
+      const bd = $('#b-detener'); if (bd) bd.onclick = async () => {
+        await api('/api/recordatorios/detener', {});
+        datos.recordatorios = { activos: [], tomas: [], receta_id: null, recetaNueva: false };
+        PINTORES.receta(); pintarInicio();
+      };
+    },
+  };
+
+  // ── Notificaciones push ──
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const instaladaApp = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  function b64aUint8(b64) {
+    const p = '='.repeat((4 - b64.length % 4) % 4), s = atob((b64 + p).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(s, c => c.charCodeAt(0));
+  }
+  async function pintarPush() {
+    const t = $('#t-push'), b = $('#b-push'); if (!t || !b) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      if (esIOS && !instaladaApp()) { t.textContent = 'Para recibir avisos en iPhone, primero agregue la app a su pantalla de inicio (Compartir → Agregar a inicio) y ábrala desde ahí.'; b.hidden = true; }
+      else { t.textContent = 'Este navegador no permite notificaciones. Revise sus tomas aquí en la app.'; b.hidden = true; }
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      const reg = await navigator.serviceWorker.ready; const s = await reg.pushManager.getSubscription();
+      if (s) { t.textContent = 'Notificaciones activas en este teléfono.'; b.textContent = 'Enviar aviso de prueba'; b.onclick = async () => { await api('/api/push/prueba', {}); }; return; }
+    }
+    if (Notification.permission === 'denied') { t.textContent = 'Las notificaciones están bloqueadas para esta app. Actívelas en los ajustes de su teléfono.'; b.hidden = true; }
+  }
+  async function activarPush(silencioso) {
+    if (!datos || !datos.push || !datos.push.disponible || !('PushManager' in window)) { pintarPush(); return; }
+    try {
+      const permiso = await Notification.requestPermission();
+      if (permiso !== 'granted') { pintarPush(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = (await reg.pushManager.getSubscription()) ||
+        await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64aUint8(datos.push.clave) });
+      await api('/api/push/suscribir', { suscripcion: sub.toJSON() });
+      if (!silencioso) await api('/api/push/prueba', {});
+    } catch (e) { const t = $('#t-push'); if (t) t.textContent = 'No pudimos activar las notificaciones en este teléfono.'; }
+    pintarPush();
+  }
+  // Al volver a la app (por ejemplo desde una notificación), refrescar las tomas.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && yo && !yo.requiereConsentimiento) cargarDatos(false); });
 
   // Sugerencia para instalar la app en la pantalla de inicio
   let eventoInstalar = null;
@@ -402,7 +698,10 @@
     if (!d.ok) { if (leerToken()) { mostrar('celular'); $('#e-celular').textContent = d.error && d.error !== 'sesion' ? d.error : ''; } return; }
     yo = d;
     if (d.requiereConsentimiento) { $('#c-priv').checked = false; $('#b-aviso').disabled = true; return mostrar('aviso'); }
-    pintarInicio(); mostrar('inicio');
+    pintarInicio();
+    const destino = (location.hash || '').slice(1);
+    if (PINTORES[destino]) mostrar(destino); else mostrar('inicio');
+    await cargarDatos(false);
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   arrancar();
