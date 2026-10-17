@@ -159,6 +159,13 @@
   .hoja table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 15px; }
   .hoja th, .hoja td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--linea); }
   .hoja th { font-weight: 600; }
+  .hoja .alarma { color: #8A2B1F; }
+  .hoja ul.alarma { border-left: 2px solid #8A2B1F; padding-left: 26px; }
+  .personal { margin: 14px 0 6px; padding: 14px 16px; border: 1px solid var(--linea); background: var(--papel); font-size: 15px; line-height: 1.5; }
+  .personal p { margin: 2px 0; }
+  .personal .fechas { margin-top: 10px; }
+  .personal .fechas div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--linea); }
+  .personal .fechas span:last-child { text-align: right; color: #3B3835; }
   .seccion-t { font: 500 20px/1.2 var(--serif); margin-top: 32px; color: #3B3835; }
   .item { padding: 18px 0; border-bottom: 1px solid var(--linea); }
   .item:first-of-type { border-top: 1px solid var(--linea); }
@@ -526,20 +533,29 @@
     const d = await api('/api/hoja/' + encodeURIComponent(id));
     ocupado(boton, false, texto);
     if (!d.ok) { alertaSuave(boton, d.error); return; }
-    const lista = x => '<ul>' + (x || []).map(li => `<li>${esc(li)}</li>`).join('') + '</ul>';
+    const al = b => b.alarma ? ' class="alarma"' : '';
+    const lista = b => `<ul${al(b)}>` + (b.x || []).map(li => `<li>${esc(li)}</li>`).join('') + '</ul>';
     const bloque = b => {
-      if (b.t === 'h') return `<h3>${esc(b.x)}</h3>`;
-      if (b.t === 'h2') return `<h4>${esc(b.x)}</h4>`;
+      if (b.t === 'h') return `<h3${al(b)}>${esc(b.x)}</h3>`;
+      if (b.t === 'h2') return `<h4${al(b)}>${esc(b.x)}</h4>`;
       if (b.t === 'p') return `<p>${esc(b.x)}</p>`;
       if (b.t === 'nota') return `<p class="nota">${esc(b.x)}</p>`;
-      if (b.t === 'ul') return lista(b.x);
+      if (b.t === 'ul') return lista(b);
       if (b.t === 'tabla') return `<table><thead><tr>${(b.cols || []).map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`
         + (b.x || []).map(r => `<tr>${(r || []).map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
       if (b.t === 'citas') return `<table><thead><tr><th>Cita</th><th>Qué se hace</th></tr></thead><tbody>`
         + (b.x || []).map(r => `<tr><td>${esc(r.cita)}</td><td>${esc(r.que)}</td></tr>`).join('') + '</tbody></table>';
       return '';
     };
-    $('#v-hoja').innerHTML = `<h2 class="titulo-detalle">${esc(d.titulo)}</h2>
+    const pe = d.personal || {};
+    const cuando = f => fechaLarga(f.inicio) + ', ' + hora(f.inicio)
+      + (f.ingreso ? ' · llegada ' + f.ingreso : '') + (f.sede ? ' · ' + f.sede : '');
+    const personal = (pe.paciente || pe.procedimiento || (pe.fechas || []).length) ? `<div class="personal">
+        ${pe.paciente ? `<p>Paciente: <strong>${esc(pe.paciente)}</strong></p>` : ''}
+        ${pe.procedimiento ? `<p>Procedimiento: ${esc(pe.procedimiento)}</p>` : ''}
+        ${(pe.fechas || []).length ? '<div class="fechas">' + pe.fechas.map(f => `<div><span>${esc(f.que)}</span><span>${esc(cuando(f))}</span></div>`).join('') + '</div>' : ''}
+      </div>` : '';
+    $('#v-hoja').innerHTML = `<h2 class="titulo-detalle">${esc(d.titulo)}</h2>${personal}
       <div class="hoja">${d.entrada ? `<p class="entrada">${esc(d.entrada)}</p>` : ''}${(d.bloques || []).map(bloque).join('')}
       <p class="meta" style="margin-top:26px">Si tiene dudas o presenta un signo de alarma, llámenos al ${esc(C.URGENCIAS_TEXTO)}.</p></div>`;
     mostrar('hoja'); window.scrollTo(0, 0);
