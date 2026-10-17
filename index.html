@@ -148,6 +148,17 @@
   .renglones div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
   .renglones dt, .renglones dd { margin: 0; }
   .renglones dd { font-weight: 500; text-align: right; }
+  .hoja { margin-top: 18px; line-height: 1.6; }
+  .hoja .entrada { color: #57524D; margin: 6px 0 18px; }
+  .hoja h3 { font: 500 22px/1.25 var(--serif); margin: 28px 0 8px; }
+  .hoja h4 { font: 500 18px/1.3 var(--serif); margin: 20px 0 6px; color: #3B3835; }
+  .hoja p { margin: 8px 0; }
+  .hoja ul { margin: 8px 0; padding-left: 20px; }
+  .hoja li { margin: 6px 0; }
+  .hoja .nota { border-left: 2px solid var(--taupe); padding: 6px 0 6px 12px; color: #3B3835; }
+  .hoja table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 15px; }
+  .hoja th, .hoja td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--linea); }
+  .hoja th { font-weight: 600; }
   .seccion-t { font: 500 20px/1.2 var(--serif); margin-top: 32px; color: #3B3835; }
   .item { padding: 18px 0; border-bottom: 1px solid var(--linea); }
   .item:first-of-type { border-top: 1px solid var(--linea); }
@@ -281,6 +292,12 @@
     <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 class="titulo-detalle">Mis indicaciones</h2>
     <div id="v-indicaciones"></div>
+  </section>
+
+  <!-- 8b. Una hoja de indicaciones -->
+  <section class="pantalla detalle" data-p="hoja" hidden>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="indicaciones">Volver</button></div>
+    <div id="v-hoja"></div>
   </section>
 
   <!-- 9. Mi receta -->
@@ -484,6 +501,7 @@
   async function cargarDatos(fresco) {
     const d = await api('/api/inicio' + (fresco ? '?fresco=1' : ''));
     datos = d.ok ? d : { disponible: false, error: d.error };
+    if (d.ok && d.nombre && yo && !yo.nombre) yo.nombre = d.nombre;
     pintarInicio();
     const visible = [...document.querySelectorAll('.pantalla')].find(s => !s.hidden);
     if (visible && PINTORES[visible.dataset.p]) PINTORES[visible.dataset.p]();
@@ -502,6 +520,29 @@
     ocupado(boton, false, texto);
     if (!d.ok) { if (ventana) ventana.close(); alertaSuave(boton, d.error); return; }
     if (ventana) ventana.location = C.API + d.url; else location.href = C.API + d.url;
+  }
+  async function abrirHoja(id, boton) {
+    const texto = boton.textContent; ocupado(boton, true, 'Abriendo…');
+    const d = await api('/api/hoja/' + encodeURIComponent(id));
+    ocupado(boton, false, texto);
+    if (!d.ok) { alertaSuave(boton, d.error); return; }
+    const lista = x => '<ul>' + (x || []).map(li => `<li>${esc(li)}</li>`).join('') + '</ul>';
+    const bloque = b => {
+      if (b.t === 'h') return `<h3>${esc(b.x)}</h3>`;
+      if (b.t === 'h2') return `<h4>${esc(b.x)}</h4>`;
+      if (b.t === 'p') return `<p>${esc(b.x)}</p>`;
+      if (b.t === 'nota') return `<p class="nota">${esc(b.x)}</p>`;
+      if (b.t === 'ul') return lista(b.x);
+      if (b.t === 'tabla') return `<table><thead><tr>${(b.cols || []).map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`
+        + (b.x || []).map(r => `<tr>${(r || []).map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
+      if (b.t === 'citas') return `<table><thead><tr><th>Cita</th><th>Qué se hace</th></tr></thead><tbody>`
+        + (b.x || []).map(r => `<tr><td>${esc(r.cita)}</td><td>${esc(r.que)}</td></tr>`).join('') + '</tbody></table>';
+      return '';
+    };
+    $('#v-hoja').innerHTML = `<h2 class="titulo-detalle">${esc(d.titulo)}</h2>
+      <div class="hoja">${d.entrada ? `<p class="entrada">${esc(d.entrada)}</p>` : ''}${(d.bloques || []).map(bloque).join('')}
+      <p class="meta" style="margin-top:26px">Si tiene dudas o presenta un signo de alarma, llámenos al ${esc(C.URGENCIAS_TEXTO)}.</p></div>`;
+    mostrar('hoja'); window.scrollTo(0, 0);
   }
   function alertaSuave(cerca, msg) {
     let p = cerca.parentElement.querySelector('.error');
@@ -549,8 +590,11 @@
       v.innerHTML = (cx ? `<p class="meta" style="margin-top:10px">${esc(cx.procedimiento)}${cx.momento === 'PRE' ? ' · cirugía el ' + esc(fechaLarga(cx.fecha)) : ''}</p>` : '')
         + l.map(i => `<div class="item"><h3>${esc(i.titulo)}</h3>
             <p>${i.momento === 'PRE' ? 'Antes de su cirugía' : i.momento === 'POST' ? 'Después de su cirugía' : 'Antes y después de su cirugía'}</p>
-            <button class="enlace" type="button" data-doc="${esc(i.id)}">Abrir documento</button></div>`).join('');
+            ${i.tipo === 'hoja'
+              ? `<button class="enlace" type="button" data-hoja="${esc(i.id)}">Leer indicaciones</button>`
+              : `<button class="enlace" type="button" data-doc="${esc(i.id)}">Abrir documento</button>`}</div>`).join('');
       v.querySelectorAll('[data-doc]').forEach(b => b.onclick = () => abrirDocumento(b.dataset.doc, b));
+      v.querySelectorAll('[data-hoja]').forEach(b => b.onclick = () => abrirHoja(b.dataset.hoja, b));
     },
 
     receta() {
@@ -560,7 +604,9 @@
       let html = `<p class="meta" style="margin-top:8px">Receta del ${esc(fechaCorta(r.fecha))}</p>`;
       if (rec.recetaNueva) html += '<div class="aviso-cambio">Su médico registró una receta nueva. Vuelva a programar sus recordatorios para que coincidan con ella.</div>';
 
+      const horasTxt = h => h.map(x => x === '24:00' ? '00:00' : x).join(', ').replace(/, ([^,]*)$/, ' y $1');
       html += r.renglones.map(x => `<div class="med"><h3>${esc(x.medicamento)}</h3><p>${esc(x.indicacion)}</p>
+        ${x.horas_fijas ? `<p class="meta">Horario: ${esc(horasTxt(x.horas_fijas))}</p>` : ''}
         <span class="etiqueta ${x.alarma ? 'si' : ''}">${x.alarma ? 'Con recordatorio' : x.a_demanda ? 'Solo si lo necesita' : 'Según indicación de su médico'}</span></div>`).join('');
 
       const activos = rec.activos.length && !rec.recetaNueva;
@@ -592,7 +638,9 @@
         const sig = new Date(Date.now() + 3600e3); sig.setMinutes(0, 0, 0);
         const local = new Date(sig.getTime() - sig.getTimezoneOffset() * 60e3).toISOString().slice(0, 16);
         html += `<div class="caja"><h3>Recordatorios de sus tomas</h3>
-          <p>Díganos a qué hora tomará (o tomó) la primera dosis. Calculamos las demás según su receta y le avisamos en cada una.</p>
+          <p>${conAlarma.some(x => x.horas_fijas)
+            ? 'Su médico ya le asignó un horario a cada medicamento. Díganos desde cuándo empieza el tratamiento y le avisamos en cada toma.'
+            : 'Díganos a qué hora tomará (o tomó) la primera dosis. Calculamos las demás según su receta y le avisamos en cada una.'}</p>
           <input type="datetime-local" id="i-primera" value="${local}" aria-label="Hora de la primera toma">
           <p class="error" id="e-rec"></p>
           <button class="boton" type="button" id="b-programar">Programar recordatorios</button></div>`;

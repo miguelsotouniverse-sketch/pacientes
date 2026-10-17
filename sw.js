@@ -1,6 +1,6 @@
 // sw.js — Guarda solo la "cáscara" de la app para que abra rápido y sin señal,
 // y muestra los recordatorios de medicamentos. Nunca guarda respuestas del servidor: son datos de salud.
-const VERSION = 'ms-pacientes-v3';
+const VERSION = 'ms-pacientes-v4';
 const CASCARA = ['./', './index.html', './config.js', './manifest.webmanifest',
   './icono-192.png', './icono-512.png', './apple-touch-icon.png', './favicon.png',
   './logo-ms.png', './logo-horizontal.png'];
