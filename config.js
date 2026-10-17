@@ -8,8 +8,8 @@ window.APP_CONFIG = {
   AVISO_VERSION: '2026-10-borrador',
 
   WHATSAPP: '525561906118',          // Michelle
-  URGENCIAS: '+525546167364',        // Teléfono de urgencias del consultorio
-  URGENCIAS_TEXTO: '55 4616 7364',
+  URGENCIAS: '+525562234133',        // Recepción del consultorio (para llamar)
+  URGENCIAS_TEXTO: '55 6223 4133',
 
   // BORRADOR — pendiente de revisión del Lic. Lomelí. No lanzar a pacientes con este texto.
   AVISO_HTML: `

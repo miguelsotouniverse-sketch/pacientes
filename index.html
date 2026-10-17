@@ -48,8 +48,13 @@
 
   /* Firma: el monograma y el nombre, siempre arriba */
   .firma { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 0; }
-  .mono { font: 500 22px/1 var(--serif); letter-spacing: .04em; display: inline-flex; flex-direction: column; align-items: center; gap: 5px; }
-  .mono::after { content: ''; width: 18px; height: 1px; background: var(--taupe); }
+  .mono { display: block; height: 40px; width: auto; }
+  .logo-h { display: block; height: 58px; width: auto; max-width: 70vw; }
+  .cargando .mono { height: 72px; animation: late 1.6s ease-in-out infinite; }
+  @keyframes late { 50% { opacity: .45; } }
+  .pasos { margin: 10px 0 4px; padding-left: 20px; line-height: 1.55; }
+  .pasos li { margin: 4px 0; }
+  .ico { display: inline-block; min-width: 1.3em; text-align: center; font-weight: 600; }
   .enlace { background: none; border: 0; padding: 8px 0; font-size: 15px; color: var(--taupe-osc); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 
   /* Bienvenida */
@@ -106,7 +111,11 @@
   /* Instalar */
   .instalar { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--linea); background: var(--papel); font-size: 15px; display: flex; gap: 14px; align-items: flex-start; }
   .instalar strong { font-weight: 500; }
-  .instalar .enlace { padding: 0; margin-left: auto; flex: none; }
+  .instalar { flex-wrap: wrap; column-gap: 18px; row-gap: 6px; }
+  .instalar > span { flex: 1 1 100%; }
+  .instalar .enlace { padding: 0; flex: none; }
+  .instalar .guia { flex: 1 1 100%; order: 3; }
+  .instalar strong { font-weight: 600; }
 
   /* Ajustes */
   .ajustes .fila { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--linea); }
@@ -179,11 +188,11 @@
 <main class="marco" id="app">
 
   <!-- Cargando -->
-  <section class="pantalla cargando" data-p="cargando"><span class="mono" aria-label="Cargando">MS</span></section>
+  <section class="pantalla cargando" data-p="cargando"><img class="mono" src="logo-ms.png" alt="Cargando"></section>
 
   <!-- 1. Celular -->
   <section class="pantalla" data-p="celular" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div class="firma"><img class="logo-h" src="logo-horizontal.png" alt="Dr. Miguel Soto · Cirujano plástico certificado"></div>
     <div class="portada">
       <h1>Su espacio de <em>paciente</em></h1>
       <p class="bajada">Su cotización, sus indicaciones, su receta y sus citas con el Dr. Miguel Soto, en un solo lugar.</p>
@@ -201,7 +210,7 @@
 
   <!-- 2. Código -->
   <section class="pantalla" data-p="codigo" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"></div>
     <div class="portada">
       <h2>Escriba el código que le enviamos</h2>
       <p class="bajada" id="t-codigo"></p>
@@ -220,7 +229,7 @@
 
   <!-- 3. Consentimiento -->
   <section class="pantalla" data-p="aviso" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"></div>
     <div style="padding-top:36px">
       <h2>Antes de entrar</h2>
       <p class="bajada">Esta app muestra información de su salud. Lea cómo la cuidamos.</p>
@@ -238,7 +247,7 @@
 
   <!-- 4. Inicio -->
   <section class="pantalla" data-p="inicio" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="ajustes">Ajustes</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="ajustes">Ajustes</button></div>
     <div class="saludo">
       <h1 id="t-saludo">Hola.</h1>
       <p class="bajada">Aquí encontrará todo lo de su atención con nosotros, conforme avance su proceso.</p>
@@ -255,28 +264,28 @@
 
   <!-- 6. Mi cotización -->
   <section class="pantalla detalle" data-p="cotizacion" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 class="titulo-detalle">Mi cotización</h2>
     <div id="v-cotizacion"></div>
   </section>
 
   <!-- 7. Mis citas -->
   <section class="pantalla detalle" data-p="citas" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 class="titulo-detalle">Mis citas</h2>
     <div id="v-citas"></div>
   </section>
 
   <!-- 8. Mis indicaciones -->
   <section class="pantalla detalle" data-p="indicaciones" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 class="titulo-detalle">Mis indicaciones</h2>
     <div id="v-indicaciones"></div>
   </section>
 
   <!-- 9. Mi receta -->
   <section class="pantalla detalle" data-p="receta" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 class="titulo-detalle">Mi receta</h2>
     <div id="v-receta"></div>
     <p class="alarma">Si presenta un signo de alarma, llámenos de inmediato al <a id="l-tel-2"></a>. Estamos disponibles a cualquier hora.</p>
@@ -284,7 +293,7 @@
 
   <!-- 5. Ajustes -->
   <section class="pantalla ajustes" data-p="ajustes" hidden>
-    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
     <h2 style="padding:36px 0 12px">Ajustes</h2>
     <div class="fila">
       <div><strong style="font-weight:500">Promociones y novedades</strong><p>Los avisos de su tratamiento llegan siempre, aunque desactive esto.</p></div>
@@ -627,7 +636,7 @@
   async function pintarPush() {
     const t = $('#t-push'), b = $('#b-push'); if (!t || !b) return;
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      if (esIOS && !instaladaApp()) { t.textContent = 'Para recibir avisos en iPhone, primero agregue la app a su pantalla de inicio (Compartir → Agregar a inicio) y ábrala desde ahí.'; b.hidden = true; }
+      if (esIOS && !instaladaApp()) { t.innerHTML = 'Para recibir avisos en iPhone, primero agregue la app a su pantalla de inicio y ábrala desde ahí:' + guiaIOS(); b.hidden = true; }
       else { t.textContent = 'Este navegador no permite notificaciones. Revise sus tomas aquí en la app.'; b.hidden = true; }
       return;
     }
@@ -656,6 +665,15 @@
   // Sugerencia para instalar la app en la pantalla de inicio
   let eventoInstalar = null;
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); eventoInstalar = e; if (yo) pintarInstalar(); });
+  // iPhone no tiene botón de "Instalar": se hace desde el menú del navegador. Los pasos cambian según el navegador.
+  function guiaIOS() {
+    const ua = navigator.userAgent;
+    const dentroDeApp = /FBAN|FBAV|Instagram|WhatsApp|Line\//i.test(ua);
+    const chrome = /CriOS/i.test(ua);
+    if (dentroDeApp) return '<ol class="pasos"><li>Esta página se abrió dentro de otra app. Toque el menú <span class="ico">•••</span> o <span class="ico">⬆︎</span> y elija <strong>Abrir en Safari</strong>.</li><li>Ya en Safari, vuelva a tocar <strong>Ver cómo</strong>.</li></ol>';
+    if (chrome) return '<ol class="pasos"><li>Toque <span class="ico">⬆︎</span> <strong>Compartir</strong>, arriba a la derecha junto a la dirección.</li><li>Elija <strong>Agregar a inicio</strong> (si no lo ve, toque <strong>Más</strong>).</li><li>Toque <strong>Agregar</strong>.</li></ol>';
+    return '<ol class="pasos"><li>Toque <span class="ico">•••</span> abajo a la derecha (en iPhone con versiones anteriores, toque directo <span class="ico">⬆︎</span> <strong>Compartir</strong> abajo al centro).</li><li>Toque <span class="ico">⬆︎</span> <strong>Compartir</strong>.</li><li>Deslice hacia abajo y elija <strong>Agregar a inicio</strong>.</li><li>Toque <strong>Agregar</strong>. Luego abra la app desde el ícono MS de su pantalla.</li></ol>';
+  }
   function pintarInstalar() {
     const caja = $('#instalar');
     const instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
@@ -663,8 +681,14 @@
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (instalada || descartada || (!ios && !eventoInstalar)) { caja.hidden = true; return; }
     caja.innerHTML = ios
-      ? '<span>Para tenerla a la mano, toque <strong>Compartir</strong> y luego <strong>Agregar a inicio</strong>.</span>'
+      ? '<span>Agregue la app a su pantalla de inicio para abrirla con un toque y recibir sus recordatorios.</span>'
       : '<span>Instale la app para abrirla desde su pantalla de inicio y recibir recordatorios.</span>';
+    if (ios) {
+      const g = document.createElement('div'); g.className = 'guia'; g.hidden = true; g.innerHTML = guiaIOS();
+      const b = document.createElement('button'); b.className = 'enlace'; b.type = 'button'; b.textContent = 'Ver cómo';
+      b.onclick = () => { g.hidden = !g.hidden; b.textContent = g.hidden ? 'Ver cómo' : 'Ocultar'; };
+      caja.appendChild(b); caja.appendChild(g);
+    }
     if (!ios) {
       const b = document.createElement('button'); b.className = 'enlace'; b.type = 'button'; b.textContent = 'Instalar';
       b.onclick = async () => { eventoInstalar.prompt(); await eventoInstalar.userChoice; eventoInstalar = null; caja.hidden = true; };
