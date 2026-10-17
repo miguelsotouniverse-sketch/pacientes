@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dr. Miguel Soto — Pacientes</title>
+<meta name="description" content="Su espacio de paciente: cotización, indicaciones, receta y citas.">
+<meta name="theme-color" content="#030707">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MS Pacientes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+  :root {
+    --tinta: #030707;
+    --taupe: #A19487;
+    --taupe-osc: #6F6458;   /* taupe con contraste suficiente para texto pequeño */
+    --crema: #F4F2F1;
+    --papel: #FBFAF9;
+    --linea: #DDD6CF;
+    --error: #8A2A1F;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--crema); color: var(--tinta);
+    font: 400 17px/1.55 var(--sans);
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+  }
+  .marco { max-width: 460px; margin: 0 auto; padding: 0 24px calc(40px + env(safe-area-inset-bottom)); min-height: 100dvh; display: flex; flex-direction: column; }
+  [hidden] { display: none !important; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--taupe); outline-offset: 3px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pantalla { animation: entra .35s ease-out; }
+    @keyframes entra { from { opacity: 0; transform: translateY(6px); } }
+  }
+
+  /* Firma: el monograma y el nombre, siempre arriba */
+  .firma { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 0; }
+  .mono { font: 500 22px/1 var(--serif); letter-spacing: .04em; display: inline-flex; flex-direction: column; align-items: center; gap: 5px; }
+  .mono::after { content: ''; width: 18px; height: 1px; background: var(--taupe); }
+  .enlace { background: none; border: 0; padding: 8px 0; font-size: 15px; color: var(--taupe-osc); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+
+  /* Bienvenida */
+  .portada { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 0 24px; }
+  h1 { font: 500 clamp(44px, 13vw, 58px)/1.02 var(--serif); letter-spacing: -.01em; }
+  h1 em { font-style: italic; color: var(--taupe-osc); }
+  .bajada { margin-top: 18px; max-width: 32ch; color: #3B3835; }
+  h2 { font: 500 34px/1.1 var(--serif); }
+
+  form { margin-top: 36px; }
+  label { display: block; font-size: 15px; color: #3B3835; margin-bottom: 8px; }
+  .campo { display: flex; align-items: stretch; border-bottom: 1.5px solid var(--tinta); }
+  .prefijo { font: 500 26px/1 var(--serif); padding: 14px 10px 12px 0; color: var(--taupe-osc); }
+  .campo input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px 0; font: 500 26px/1 var(--serif); letter-spacing: .03em; }
+  .campo input:focus { outline: none; }
+  .campo:focus-within { border-bottom-color: var(--taupe); }
+  .codigo input { letter-spacing: .5em; font-size: 34px; }
+  .error { color: var(--error); font-size: 15px; margin-top: 12px; min-height: 1.4em; }
+  .nota { font-size: 15px; color: #57524D; margin-top: 14px; }
+
+  .boton {
+    display: flex; width: 100%; justify-content: center; align-items: center; gap: 10px;
+    margin-top: 28px; padding: 17px 20px; border: 0; border-radius: 2px;
+    background: var(--tinta); color: var(--crema); font-weight: 500; letter-spacing: .02em; cursor: pointer;
+    text-decoration: none;
+  }
+  .boton:disabled { opacity: .45; cursor: default; }
+  .boton.claro { background: transparent; color: var(--tinta); border: 1px solid var(--tinta); }
+  .acciones-sec { display: flex; justify-content: space-between; margin-top: 14px; }
+
+  /* Consentimiento */
+  .aviso { margin-top: 20px; max-height: 42dvh; overflow-y: auto; padding: 18px 18px 6px; background: var(--papel); border: 1px solid var(--linea); font-size: 15px; line-height: 1.6; }
+  .aviso p { margin-bottom: 12px; }
+  .casilla { display: flex; gap: 14px; align-items: flex-start; margin-top: 20px; font-size: 16px; line-height: 1.45; cursor: pointer; }
+  .casilla input { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--tinta); flex: none; }
+  .casilla small { display: block; color: #57524D; font-size: 14px; margin-top: 3px; }
+
+  /* Inicio */
+  .saludo { padding: 44px 0 8px; }
+  .saludo h1 { font-size: clamp(40px, 11vw, 50px); }
+  .lista { list-style: none; padding: 0; margin-top: 28px; border-top: 1px solid var(--linea); }
+  .lista li { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 20px 0; border-bottom: 1px solid var(--linea); }
+  .lista h3 { font: 500 25px/1.15 var(--serif); }
+  .lista p { grid-column: 1; font-size: 15px; color: #57524D; max-width: 34ch; }
+  .estado { grid-row: 1; grid-column: 2; align-self: center; font-size: 13px; color: var(--taupe-osc); }
+  .lista li.inactivo h3 { color: #6E6964; }
+
+  .ayuda { margin: 36px -24px calc(-40px - env(safe-area-inset-bottom)); padding: 30px 24px calc(40px + env(safe-area-inset-bottom)); background: var(--tinta); color: var(--crema); }
+  .ayuda h2 { font-size: 30px; }
+  .ayuda p { margin-top: 8px; color: #CFC8C1; font-size: 15px; }
+  .ayuda .boton { background: var(--crema); color: var(--tinta); margin-top: 22px; }
+  .ayuda .boton.claro { background: transparent; color: var(--crema); border-color: #5C5650; margin-top: 12px; }
+
+  /* Instalar */
+  .instalar { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--linea); background: var(--papel); font-size: 15px; display: flex; gap: 14px; align-items: flex-start; }
+  .instalar strong { font-weight: 500; }
+  .instalar .enlace { padding: 0; margin-left: auto; flex: none; }
+
+  /* Ajustes */
+  .ajustes .fila { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--linea); }
+  .ajustes .fila p { font-size: 14px; color: #57524D; margin-top: 2px; }
+  .interruptor { position: relative; width: 52px; height: 30px; flex: none; }
+  .interruptor input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+  .interruptor span { position: absolute; inset: 0; border-radius: 15px; background: var(--linea); transition: background .2s; pointer-events: none; }
+  .interruptor span::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .interruptor input:checked + span { background: var(--tinta); }
+  .interruptor input:checked + span::after { transform: translateX(22px); }
+  .interruptor input:focus-visible + span { outline: 2px solid var(--taupe); outline-offset: 3px; }
+  .peligro { color: var(--error); }
+  .confirmar { margin-top: 14px; padding: 16px; border: 1px solid var(--error); font-size: 15px; }
+  .version { margin-top: auto; padding-top: 32px; font-size: 13px; color: #8A847E; }
+
+  .cargando { flex: 1; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<main class="marco" id="app">
+
+  <!-- Cargando -->
+  <section class="pantalla cargando" data-p="cargando"><span class="mono" aria-label="Cargando">MS</span></section>
+
+  <!-- 1. Celular -->
+  <section class="pantalla" data-p="celular" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div class="portada">
+      <h1>Su espacio de <em>paciente</em></h1>
+      <p class="bajada">Su cotización, sus indicaciones, su receta y sus citas con el Dr. Miguel Soto, en un solo lugar.</p>
+      <form id="f-celular" novalidate>
+        <label for="tel">Su celular</label>
+        <div class="campo"><span class="prefijo" aria-hidden="true">+52</span>
+          <input id="tel" name="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="55 1234 5678" maxlength="14" required>
+        </div>
+        <p class="error" role="alert" id="e-celular"></p>
+        <button class="boton" type="submit" id="b-celular">Recibir código por WhatsApp</button>
+      </form>
+      <p class="nota">Use el número que registró en su consulta. ¿Aún no es paciente? <a class="enlace" id="l-nuevo" target="_blank" rel="noopener">Escríbanos por WhatsApp</a></p>
+    </div>
+  </section>
+
+  <!-- 2. Código -->
+  <section class="pantalla" data-p="codigo" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div class="portada">
+      <h2>Escriba el código que le enviamos</h2>
+      <p class="bajada" id="t-codigo"></p>
+      <form id="f-codigo" novalidate>
+        <label for="cod">Código de 6 dígitos</label>
+        <div class="campo codigo"><input id="cod" name="cod" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required></div>
+        <p class="error" role="alert" id="e-codigo"></p>
+        <button class="boton" type="submit" id="b-codigo">Entrar</button>
+      </form>
+      <div class="acciones-sec">
+        <button class="enlace" type="button" id="b-cambiar">Cambiar número</button>
+        <button class="enlace" type="button" id="b-reenviar" disabled></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Consentimiento -->
+  <section class="pantalla" data-p="aviso" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span></div>
+    <div style="padding-top:36px">
+      <h2>Antes de entrar</h2>
+      <p class="bajada">Esta app muestra información de su salud. Lea cómo la cuidamos.</p>
+      <div class="aviso" id="t-aviso" tabindex="0" aria-label="Aviso de privacidad"></div>
+      <form id="f-aviso">
+        <label class="casilla"><input type="checkbox" id="c-priv" required>
+          <span>He leído el aviso de privacidad y autorizo el uso de mis datos personales, incluidos los de salud, para los fines descritos.</span></label>
+        <label class="casilla"><input type="checkbox" id="c-com">
+          <span>Quiero recibir promociones y novedades.<small>Opcional. Puede cambiarlo cuando quiera en Ajustes.</small></span></label>
+        <p class="error" role="alert" id="e-aviso"></p>
+        <button class="boton" type="submit" id="b-aviso" disabled>Aceptar y continuar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 4. Inicio -->
+  <section class="pantalla" data-p="inicio" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="ajustes">Ajustes</button></div>
+    <div class="saludo">
+      <h1 id="t-saludo">Hola.</h1>
+      <p class="bajada">Aquí encontrará todo lo de su atención con nosotros, conforme avance su proceso.</p>
+    </div>
+    <div class="instalar" id="instalar" hidden></div>
+    <ul class="lista" id="lista"></ul>
+    <div class="ayuda">
+      <h2>¿Tiene una duda?</h2>
+      <p>Escríbanos y le respondemos. Si presenta un signo de alarma después de su cirugía, llámenos de inmediato al <span id="t-urg"></span>.</p>
+      <a class="boton" id="l-wa" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+      <a class="boton claro" id="l-tel">Llamar al consultorio</a>
+    </div>
+  </section>
+
+  <!-- 5. Ajustes -->
+  <section class="pantalla ajustes" data-p="ajustes" hidden>
+    <div class="firma"><span class="mono" aria-hidden="true">MS</span><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
+    <h2 style="padding:36px 0 12px">Ajustes</h2>
+    <div class="fila">
+      <div><strong style="font-weight:500">Promociones y novedades</strong><p>Los avisos de su tratamiento llegan siempre, aunque desactive esto.</p></div>
+      <label class="interruptor"><input type="checkbox" id="s-com" aria-label="Recibir promociones y novedades"><span></span></label>
+    </div>
+    <div class="fila">
+      <div><strong style="font-weight:500">Aviso de privacidad</strong><p>Versión que usted aceptó.</p></div>
+      <button class="enlace" type="button" id="b-ver-aviso">Leer</button>
+    </div>
+    <div class="aviso" id="t-aviso-2" hidden tabindex="0"></div>
+    <div class="fila"><strong style="font-weight:500">Cerrar sesión en este teléfono</strong><button class="enlace" type="button" id="b-salir">Cerrar sesión</button></div>
+    <div class="fila"><div><strong style="font-weight:500" class="peligro">Eliminar mi cuenta de la app</strong><p>Su expediente clínico no se borra.</p></div><button class="enlace peligro" type="button" id="b-eliminar">Eliminar</button></div>
+    <div class="confirmar" id="confirmar" hidden>
+      <p>Se cerrará su sesión en todos sus dispositivos y dejará de recibir avisos y recordatorios. Podrá volver a entrar cuando quiera con su celular.</p>
+      <button class="boton" type="button" id="b-eliminar-si" style="background:var(--error)">Eliminar mi cuenta</button>
+      <button class="enlace" type="button" id="b-eliminar-no">Conservar mi cuenta</button>
+    </div>
+    <p class="version" id="t-version"></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const C = window.APP_CONFIG;
+  const $ = s => document.querySelector(s);
+  const GUARDA = 'ms_pac_sesion';
+  let telefono = '';
+  let yo = null;
+  let relojReenvio = null;
+
+  // ── Utilidades ──
+  const leerToken = () => { try { return localStorage.getItem(GUARDA); } catch { return null; } };
+  const guardarToken = t => { try { t ? localStorage.setItem(GUARDA, t) : localStorage.removeItem(GUARDA); } catch {} };
+  const solo10 = v => { const d = String(v).replace(/\D/g, ''); return d.length > 10 ? d.slice(-10) : d; };
+  const formato = d => d.replace(/^(\d{2})(\d{0,4})(\d{0,4}).*/, (_, a, b, c) => [a, b, c].filter(Boolean).join(' '));
+
+  async function api(ruta, cuerpo) {
+    const h = { 'Content-Type': 'application/json' };
+    const t = leerToken(); if (t) h.Authorization = 'Bearer ' + t;
+    let r;
+    try {
+      r = await fetch(C.API + ruta, { method: cuerpo === undefined ? 'GET' : 'POST', headers: h, body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo) });
+    } catch { return { ok: false, error: 'No hay conexión. Revise su internet e intente de nuevo.' }; }
+    const d = await r.json().catch(() => ({ ok: false, error: 'Respuesta inesperada del servidor.' }));
+    if (r.status === 401) { guardarToken(null); mostrar('celular'); }
+    return d;
+  }
+
+  function mostrar(p) {
+    document.querySelectorAll('.pantalla').forEach(s => { s.hidden = s.dataset.p !== p; });
+    window.scrollTo(0, 0);
+    const foco = { celular: '#tel', codigo: '#cod' }[p];
+    if (foco) setTimeout(() => $(foco).focus(), 60);
+  }
+  const ocupado = (b, si, texto) => { b.disabled = si; if (texto) b.textContent = texto; };
+
+  // ── Enlaces fijos ──
+  const wa = 'https://wa.me/' + C.WHATSAPP;
+  $('#l-nuevo').href = wa + '?text=' + encodeURIComponent('Hola, me gustaría información.');
+  $('#l-wa').href = wa;
+  $('#l-tel').href = 'tel:' + C.URGENCIAS;
+  $('#t-urg').textContent = C.URGENCIAS_TEXTO;
+  $('#t-aviso').innerHTML = C.AVISO_HTML;
+  $('#t-aviso-2').innerHTML = C.AVISO_HTML;
+  $('#t-version').textContent = 'Aviso de privacidad, versión ' + C.AVISO_VERSION;
+  document.querySelectorAll('[data-ir]').forEach(b => b.addEventListener('click', () => mostrar(b.dataset.ir)));
+
+  // ── 1. Celular ──
+  $('#tel').addEventListener('input', e => { e.target.value = formato(solo10(e.target.value)); $('#e-celular').textContent = ''; });
+  $('#f-celular').addEventListener('submit', async e => {
+    e.preventDefault();
+    const t = solo10($('#tel').value);
+    if (t.length !== 10) { $('#e-celular').textContent = 'Escriba su celular a 10 dígitos.'; return; }
+    const b = $('#b-celular'); ocupado(b, true, 'Enviando código…');
+    const d = await api('/api/codigo', { telefono: t });
+    ocupado(b, false, 'Recibir código por WhatsApp');
+    if (!d.ok) { $('#e-celular').textContent = d.error; return; }
+    telefono = t;
+    $('#t-codigo').textContent = `Si +52 ${formato(t)} está registrado con nosotros, le llegará un mensaje de WhatsApp con su código. Vence en 10 minutos.`;
+    $('#cod').value = ''; $('#e-codigo').textContent = '';
+    iniciarReenvio();
+    mostrar('codigo');
+  });
+
+  // ── 2. Código ──
+  function iniciarReenvio() {
+    let s = 45; const b = $('#b-reenviar'); b.disabled = true;
+    clearInterval(relojReenvio);
+    const pinta = () => { b.textContent = s > 0 ? `Reenviar en ${s} s` : 'Reenviar código'; b.disabled = s > 0; };
+    pinta(); relojReenvio = setInterval(() => { s--; pinta(); if (s <= 0) clearInterval(relojReenvio); }, 1000);
+  }
+  $('#b-reenviar').addEventListener('click', async () => {
+    const d = await api('/api/codigo', { telefono });
+    $('#e-codigo').textContent = d.ok ? '' : d.error;
+    if (d.ok) iniciarReenvio();
+  });
+  $('#b-cambiar').addEventListener('click', () => { clearInterval(relojReenvio); mostrar('celular'); });
+  $('#cod').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    $('#e-codigo').textContent = '';
+    if (e.target.value.length === 6) $('#f-codigo').requestSubmit();
+  });
+  $('#f-codigo').addEventListener('submit', async e => {
+    e.preventDefault();
+    const codigo = $('#cod').value;
+    if (codigo.length !== 6) { $('#e-codigo').textContent = 'El código tiene 6 dígitos.'; return; }
+    const b = $('#b-codigo'); ocupado(b, true, 'Verificando…');
+    const d = await api('/api/verificar', { telefono, codigo, dispositivo: navigator.userAgent });
+    ocupado(b, false, 'Entrar');
+    if (!d.ok) { $('#e-codigo').textContent = d.error; $('#cod').select(); return; }
+    guardarToken(d.token);
+    clearInterval(relojReenvio);
+    await arrancar();
+  });
+
+  // ── 3. Aviso ──
+  $('#c-priv').addEventListener('change', e => { $('#b-aviso').disabled = !e.target.checked; });
+  $('#f-aviso').addEventListener('submit', async e => {
+    e.preventDefault();
+    const b = $('#b-aviso'); ocupado(b, true, 'Guardando…');
+    const d = await api('/api/consentimiento', { privacidad: true, version: C.AVISO_VERSION, comercial: $('#c-com').checked });
+    ocupado(b, false, 'Aceptar y continuar');
+    if (!d.ok) { $('#e-aviso').textContent = d.error; return; }
+    await arrancar();
+  });
+
+  // ── 4. Inicio ──
+  const SECCIONES = [
+    ['cotizacion', 'Mi cotización', 'La cotización vigente que recibió en su valoración, con lo que lleva pagado.'],
+    ['indicaciones', 'Mis indicaciones', 'Lo que debe hacer antes y después de su cirugía, en cuanto quede programada.'],
+    ['receta', 'Mi receta', 'Sus medicamentos con un recordatorio para cada toma, después de su cirugía.'],
+    ['citas', 'Mis citas', 'Sus próximas citas y las que ya tuvo.'],
+  ];
+  function pintarInicio() {
+    $('#t-saludo').textContent = yo.nombre ? `Hola, ${yo.nombre}.` : 'Hola.';
+    const ul = $('#lista'); ul.innerHTML = '';
+    for (const [clave, titulo, texto] of SECCIONES) {
+      const activa = !!(yo.secciones && yo.secciones[clave]);
+      const li = document.createElement('li');
+      if (!activa) li.className = 'inactivo';
+      li.innerHTML = `<h3></h3><span class="estado"></span><p></p>`;
+      li.querySelector('h3').textContent = titulo;
+      li.querySelector('p').textContent = texto;
+      li.querySelector('.estado').textContent = activa ? 'Ver' : 'Aún no disponible';
+      ul.appendChild(li);
+    }
+    $('#s-com').checked = !!yo.comercial;
+    pintarInstalar();
+  }
+
+  // Sugerencia para instalar la app en la pantalla de inicio
+  let eventoInstalar = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); eventoInstalar = e; if (yo) pintarInstalar(); });
+  function pintarInstalar() {
+    const caja = $('#instalar');
+    const instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    let descartada = false; try { descartada = localStorage.getItem('ms_pac_instalar') === 'no'; } catch {}
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (instalada || descartada || (!ios && !eventoInstalar)) { caja.hidden = true; return; }
+    caja.innerHTML = ios
+      ? '<span>Para tenerla a la mano, toque <strong>Compartir</strong> y luego <strong>Agregar a inicio</strong>.</span>'
+      : '<span>Instale la app para abrirla desde su pantalla de inicio y recibir recordatorios.</span>';
+    if (!ios) {
+      const b = document.createElement('button'); b.className = 'enlace'; b.type = 'button'; b.textContent = 'Instalar';
+      b.onclick = async () => { eventoInstalar.prompt(); await eventoInstalar.userChoice; eventoInstalar = null; caja.hidden = true; };
+      caja.appendChild(b);
+    }
+    const x = document.createElement('button'); x.className = 'enlace'; x.type = 'button'; x.textContent = 'Ahora no';
+    x.onclick = () => { try { localStorage.setItem('ms_pac_instalar', 'no'); } catch {} caja.hidden = true; };
+    caja.appendChild(x);
+    caja.hidden = false;
+  }
+
+  // ── 5. Ajustes ──
+  $('#s-com').addEventListener('change', async e => {
+    const quiere = e.target.checked;
+    const d = await api('/api/preferencias', { comercial: quiere });
+    if (!d.ok) e.target.checked = !quiere; else yo.comercial = quiere;
+  });
+  $('#b-ver-aviso').addEventListener('click', () => { const a = $('#t-aviso-2'); a.hidden = !a.hidden; });
+  $('#b-salir').addEventListener('click', async () => { await api('/api/salir', {}); guardarToken(null); yo = null; mostrar('celular'); });
+  $('#b-eliminar').addEventListener('click', () => { $('#confirmar').hidden = false; $('#b-eliminar-si').focus(); });
+  $('#b-eliminar-no').addEventListener('click', () => { $('#confirmar').hidden = true; });
+  $('#b-eliminar-si').addEventListener('click', async () => {
+    const d = await api('/api/eliminar-cuenta', {});
+    if (d.ok) { guardarToken(null); yo = null; $('#confirmar').hidden = true; mostrar('celular'); }
+  });
+
+  // ── Arranque ──
+  async function arrancar() {
+    if (!leerToken()) return mostrar('celular');
+    const d = await api('/api/yo');
+    if (!d.ok) { if (leerToken()) { mostrar('celular'); $('#e-celular').textContent = d.error && d.error !== 'sesion' ? d.error : ''; } return; }
+    yo = d;
+    if (d.requiereConsentimiento) { $('#c-priv').checked = false; $('#b-aviso').disabled = true; return mostrar('aviso'); }
+    pintarInicio(); mostrar('inicio');
+  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  arrancar();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+// sw.js — Guarda solo la "cáscara" de la app para que abra rápido y sin señal.
+// Nunca guarda respuestas del servidor: son datos de salud.
+const VERSION = 'ms-pacientes-v1';
+const CASCARA = ['./', './index.html', './config.js', './manifest.webmanifest',
+  './icono-192.png', './icono-512.png', './apple-touch-icon.png', './favicon.png'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(CASCARA)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys()
+    .then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
+});
+
+self.addEventListener('fetch', e => {
+  const u = new URL(e.request.url);
+  if (e.request.method !== 'GET' || u.origin !== self.location.origin) return; // API y fuentes: siempre red
+  // Red primero (para recibir versiones nuevas), caché si no hay señal.
+  e.respondWith(
+    fetch(e.request)
+      .then(r => { const copia = r.clone(); caches.open(VERSION).then(c => c.put(e.request, copia)); return r; })
+      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+  );
+});
