@@ -1,7 +1,7 @@
 // config.js — Lo que cambia sin tocar la app.
 window.APP_CONFIG = {
   // Dirección del backend en Railway (servicio "app-pacientes").
-  API: 'https://app-pacientes-production.up.railway.app',
+  API: 'https://app-pacientes-api-production.up.railway.app',
 
   // Debe coincidir con AVISO_VERSION del backend. Al cambiar el texto del aviso,
   // se sube la versión en los dos lados y todas las pacientes lo vuelven a aceptar.
