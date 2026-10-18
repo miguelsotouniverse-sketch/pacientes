@@ -143,6 +143,11 @@
   .vacio { margin-top: 24px; color: #57524D; max-width: 34ch; }
   .cifra-grande { font: 500 44px/1.05 var(--serif); margin-top: 22px; }
   .proc { font: 500 26px/1.2 var(--serif); margin-top: 18px; }
+  .cot-tarjeta { padding: 22px 0 24px; border-bottom: 1px solid var(--linea); }
+  .cot-tarjeta:last-of-type { border-bottom: 0; }
+  .cot-tarjeta .proc { margin-top: 0; }
+  .cifra { font: 500 30px/1.1 var(--serif); margin-top: 12px; }
+  .cot-tarjeta .boton { margin-top: 18px; }
   .meta { font-size: 14px; color: #6E6964; margin-top: 4px; }
   .renglones { margin-top: 22px; border-top: 1px solid var(--linea); }
   .renglones div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--linea); }
@@ -283,7 +288,7 @@
   <!-- 6. Mi cotización -->
   <section class="pantalla detalle" data-p="cotizacion" hidden>
     <div class="firma"><img class="mono" src="logo-ms.png" alt="" aria-hidden="true"><button class="enlace" type="button" data-ir="inicio">Volver</button></div>
-    <h2 class="titulo-detalle">Mi cotización</h2>
+    <h2 class="titulo-detalle">Mis cotizaciones</h2>
     <div id="v-cotizacion"></div>
   </section>
 
@@ -455,8 +460,11 @@
   const fechaCorta = iso => new Date(iso.length === 10 ? iso + 'T12:00:00' : iso).toLocaleDateString('es-MX', { ...TZ, day: 'numeric', month: 'long', year: 'numeric' });
   const hora = iso => new Date(iso).toLocaleTimeString('es-MX', { ...TZ, hour: 'numeric', minute: '2-digit' });
 
+  // Lista de cotizaciones vigentes (si el servidor aún no manda la lista, se usa la principal).
+  const cotizacionesDe = d => (d && d.cotizaciones && d.cotizaciones.length) ? d.cotizaciones : (d && d.cotizacion ? [d.cotizacion] : []);
+
   const SECCIONES = [
-    ['cotizacion', 'Mi cotización', 'La cotización vigente que recibió en su valoración, con lo que lleva pagado.'],
+    ['cotizacion', 'Mis cotizaciones', 'Las cotizaciones que recibió en su valoración, con lo que lleva pagado.'],
     ['indicaciones', 'Mis indicaciones', 'Lo que debe hacer antes y después de su cirugía, en cuanto quede programada.'],
     ['receta', 'Mi receta', 'Sus medicamentos, con un recordatorio para cada toma.'],
     ['citas', 'Mis citas', 'Sus próximas citas y las que ya tuvo.'],
@@ -464,9 +472,12 @@
   function resumenSeccion(clave) {
     if (!datos) return { activa: false, estado: 'Cargando…' };
     if (!datos.disponible) return { activa: false, estado: 'Aún no disponible' };
-    if (clave === 'cotizacion') return datos.cotizacion
-      ? { activa: true, estado: datos.cotizacion.saldo > 0 ? 'Saldo ' + pesos(datos.cotizacion.saldo) : 'Ver' }
-      : { activa: false, estado: 'Sin cotización vigente' };
+    if (clave === 'cotizacion') {
+      const cs = cotizacionesDe(datos);
+      if (!cs.length) return { activa: false, estado: 'Sin cotización vigente' };
+      if (cs.length > 1 && !cs[0].decidida) return { activa: true, estado: cs.length + ' cotizaciones' };
+      return { activa: true, estado: cs[0].pagado > 0 && cs[0].saldo > 0 ? 'Saldo ' + pesos(cs[0].saldo) : 'Ver' };
+    }
     if (clave === 'indicaciones') return datos.indicaciones.length
       ? { activa: true, estado: datos.indicaciones.length === 1 ? '1 documento' : datos.indicaciones.length + ' documentos' }
       : { activa: false, estado: 'Aún no hay' };
@@ -569,19 +580,25 @@
   // ── 6-9. Detalle ──
   const PINTORES = {
     cotizacion() {
-      const c = datos && datos.cotizacion, v = $('#v-cotizacion');
-      if (!c) { v.innerHTML = '<p class="vacio">No encontramos una cotización vigente a su nombre. Si acaba de tener su valoración, puede tardar unos minutos en aparecer.</p>'; return; }
-      v.innerHTML = `
-        <p class="proc">${esc(c.procedimiento)}</p>
-        <p class="meta">Cotización ${esc(c.id)} · ${esc(fechaCorta(c.fecha))}</p>
-        <p class="cifra-grande">${pesos(c.monto)}</p>
-        <dl class="renglones">
-          <div><dt>Pagado</dt><dd>${pesos(c.pagado)}</dd></div>
-          <div><dt>Saldo</dt><dd>${pesos(c.saldo)}</dd></div>
-        </dl>
-        ${c.pdf ? '<button class="boton claro" type="button" id="b-pdf-cot">Ver cotización completa</button>' : ''}
-        <p class="meta" style="margin-top:18px">Si algún monto no coincide con lo que usted pagó, escríbanos por WhatsApp y lo revisamos.</p>`;
-      const b = $('#b-pdf-cot'); if (b) b.onclick = () => abrirDocumento('cotizacion', b);
+      const cs = cotizacionesDe(datos), v = $('#v-cotizacion');
+      if (!cs.length) { v.innerHTML = '<p class="vacio">No encontramos una cotización vigente a su nombre. Si acaba de tener su valoración, puede tardar unos minutos en aparecer.</p>'; return; }
+      const tarjeta = (c, grande) => `
+        <div class="cot-tarjeta">
+          <p class="proc">${esc(c.procedimiento)}</p>
+          <p class="meta">Cotización ${esc(c.id)} · ${esc(fechaCorta(c.fecha))}</p>
+          <p class="${grande ? 'cifra-grande' : 'cifra'}">${pesos(c.monto)}</p>
+          ${c.pagado > 0 ? `<dl class="renglones">
+            <div><dt>Pagado</dt><dd>${pesos(c.pagado)}</dd></div>
+            <div><dt>Saldo</dt><dd>${pesos(c.saldo)}</dd></div>
+          </dl>` : ''}
+          ${c.pdf ? `<button class="boton claro" type="button" data-cot="${esc(c.id)}">Ver cotización completa</button>` : ''}
+        </div>`;
+      const principal = cs[0].decidida || cs.length === 1;
+      v.innerHTML = principal
+        ? tarjeta(cs[0], true) + (cs.length > 1 ? '<p class="seccion-t">Otras cotizaciones</p>' + cs.slice(1).map(c => tarjeta(c, false)).join('') : '')
+        : `<p class="meta">Tiene ${cs.length} opciones para revisar con calma. Cuando decida, con gusto le ayudamos a apartar su fecha.</p>` + cs.map(c => tarjeta(c, false)).join('');
+      v.innerHTML += '<p class="meta" style="margin-top:18px">Si algún monto no coincide con lo que usted pagó, escríbanos por WhatsApp y lo revisamos.</p>';
+      v.querySelectorAll('[data-cot]').forEach(b => { b.onclick = () => abrirDocumento('cot:' + b.dataset.cot, b); });
     },
 
     citas() {
